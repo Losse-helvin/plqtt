@@ -150,9 +150,11 @@ def make_page3() -> Path:
 
     for x, y, w, h, pic, headline, desc, cta in [
         (517, 141, 248, 298, "caisse_restaurant.jpg", "Caisse tactile pour restaurant",
-         "Encaissez plus vite et suivez vos ventes en temps réel.", "Ça m'intéresse !"),
+         "Encaissez plus vite, suivez vos ventes en temps réel et simplifiez le quotidien de vos équipes.",
+         "Ça m'intéresse !"),
         (521, 441, 240, 307, "caisse_boutique.jpg", "Caisse tactile pour commerces",
-         "Une solution adaptée à votre point de vente et à vos équipes.", "Obtenir une offre !"),
+         "Une solution adaptée à votre point de vente, à votre activité et à vos équipes.",
+         "Obtenir une offre !"),
     ]:
         rr(d, p((x, y, x + w, y + h)), 6, (248, 248, 249))
         photo(im, p((x + 3, y + 3, x + w - 3, y + 124)), pic)
@@ -161,9 +163,9 @@ def make_page3() -> Path:
         d.rectangle(AB((x + 3, y + 124, x + w - 3, y + h - 3)), fill=LIGHT_GRAY)
         txt(d, p((x + 13, y + 136)), headline, 13.2, (25, 25, 30), True, w - 26)
         paragraph(d, p((x + 13, y + 164)), desc, 11, w - 30, (115, 115, 120), False, 15.5, 3)
-        rr(d, p((x + 13, y + h - 47, x + w - 13, y + h - 14)), 16, WHITE)
-        txt(d, p((x + 24, y + h - 37)), cta, 11.3, BLUE, True)
-        txt(d, p((x + w - 34, y + h - 37)), "›", 14, BLUE, True)
+        rr(d, p((x + 13, y + h - 74, x + w - 13, y + h - 41)), 16, WHITE)
+        txt(d, p((x + 24, y + h - 64)), cta, 11.3, BLUE, True)
+        txt(d, p((x + w - 34, y + h - 64)), "›", 14, BLUE, True)
 
     rr(d, p((755, 151, 1041, 618)), 7, WHITE)
     txt(d, p((767, 162)), "HelloLead", 13, (25, 25, 30), True)
@@ -179,16 +181,22 @@ def make_page3() -> Path:
         d.rectangle(AB((775, yy, 1025, yy + 25)), outline=(160, 180, 215), width=pt(.8))
         radio(d, 783, yy + 7)
         txt(d, p((797, yy + 7)), label, 9.5, (70, 80, 95))
-    rr(d, p((775, 563, 818, 590)), 2, BLUE)
-    txt(d, p((790, 568)), "«", 10, WHITE, True)
-    rr(d, p((978, 563, 1025, 590)), 2, (105, 160, 230))
-    txt(d, p((996, 568)), "»", 10, WHITE, True)
+    for yy, label in [(470, "Votre activité :"), (524, "Nombre de points de vente :")]:
+        txt(d, p((775, yy)), label, 9.2, (60, 65, 75))
+        d.rectangle(AB((775, yy + 14, 1025, yy + 42)), outline=(160, 180, 215), width=pt(.8))
+        txt(d, p((785, yy + 22)), "Sélectionner", 9, (150, 155, 165))
+        chevron(d, 1008, yy + 26)
+    rr(d, p((775, 581, 818, 608)), 2, BLUE)
+    txt(d, p((790, 586)), "«", 10, WHITE, True)
+    rr(d, p((978, 581, 1025, 608)), 2, (105, 160, 230))
+    txt(d, p((996, 586)), "»", 10, WHITE, True)
 
+    # The RCS ad points to the landing page form.
     arrow = [tuple(pt(v) for v in p(q)) for q in
-             [(800, 725), (850, 680), (900, 655), (920, 620)]]
+             [(745, 726), (790, 700), (845, 660), (885, 622)]]
     d.line(arrow, fill=BLUE, width=pt(2), joint="curve")
     d.polygon([tuple(pt(v) for v in p(q)) for q in
-               [(920, 620), (914, 635), (928, 633)]], fill=BLUE)
+               [(885, 622), (875, 637), (893, 636)]], fill=BLUE)
 
     out = TMP / "center3.png"
     im.save(out)
@@ -598,7 +606,8 @@ def rebuild():
         right_from = 450 if pn == 4 else (330 if pn == 6 else 240)
         right_spans = [s for s in spans if s["bbox"][0] >= rx and s["bbox"][1] > right_from]
         annotation = ([s for s in spans if s["bbox"][0] >= 800 and
-                       ("lien du RCS" in s["text"] or "vers landing" in s["text"])]
+                       ("lien du RCS" in s["text"] or "vers landing" in s["text"]
+                        or "page (formulaire)" in s["text"])]
                       if pn == 3 else [])
 
         for s in spans:
@@ -606,9 +615,7 @@ def rebuild():
             in_right = s in right_spans
             in_center = x1 > cx0 and x0 < cx1 and y1 > cy0 and y0 < cy1
             keep = s in annotation or (pn != 3 and not in_right and not in_center)
-            if in_right or (pn != 3 and in_center):
-                if s in annotation:
-                    continue
+            if in_right or (pn != 3 and in_center) or s in annotation:
                 page.add_redact_annot(fitz.Rect(x0 - 1.5, y0 - 1.5, x1 + 2.5, y1 + 1.5),
                                       fill=False, cross_out=False)
         page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE,
