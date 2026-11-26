@@ -191,13 +191,6 @@ def make_page3() -> Path:
     rr(d, p((978, 581, 1025, 608)), 2, (105, 160, 230))
     txt(d, p((996, 586)), "»", 10, WHITE, True)
 
-    # The RCS ad points to the landing page form.
-    arrow = [tuple(pt(v) for v in p(q)) for q in
-             [(745, 726), (790, 700), (845, 660), (885, 622)]]
-    d.line(arrow, fill=BLUE, width=pt(2), joint="curve")
-    d.polygon([tuple(pt(v) for v in p(q)) for q in
-               [(885, 622), (875, 637), (893, 636)]], fill=BLUE)
-
     out = TMP / "center3.png"
     im.save(out)
     return out
